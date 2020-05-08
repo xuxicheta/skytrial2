@@ -1,0 +1,1 @@
+export type DisplayWidth = 'small' | 'medium' | 'large';
