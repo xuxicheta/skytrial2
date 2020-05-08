@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { Inject, Injectable, NgZone } from '@angular/core';
+import { Inject, Injectable, Injector, NgZone } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, shareReplay, startWith } from 'rxjs/operators';
 import { IConfig } from './config.interface';
@@ -8,14 +8,21 @@ import { VIEWPORT_CONFIG } from './viewport.token';
 
 @Injectable()
 export class ViewportService {
-  private width = this.createResize(this.document.defaultView);
-  public viewportSize = this.createViewportSize(this.width, this.config);
+  private config;
+  private width: Observable<number>;
+  public viewportSize: Observable<DisplayWidth>;
 
   constructor(
-    @Inject(VIEWPORT_CONFIG) private config: IConfig,
+    // @Inject(VIEWPORT_CONFIG) private config: IConfig,
+    /** some stackblizt issue o.O, it doesn't with injected token */
+    private injector: Injector,
     @Inject(DOCUMENT) private document: Document,
     private ngZone: NgZone,
-  ) { }
+  ) {
+    this.config = this.injector.get(VIEWPORT_CONFIG);
+    this.width = this.createResize(this.document.defaultView);
+    this.viewportSize = this.createViewportSize(this.width, this.config)
+  }
 
   private createResize(window: Window): Observable<number> {
     return this.ngZone.runOutsideAngular(() => {
@@ -28,7 +35,7 @@ export class ViewportService {
       ).pipe(
         debounceTime(50),
         startWith(0),
-        map(() => window.outerWidth),
+        map(() => window.innerWidth),
       )
     })
   }
