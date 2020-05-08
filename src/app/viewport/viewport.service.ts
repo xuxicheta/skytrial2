@@ -1,10 +1,10 @@
 import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable, NgZone } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
-import { debounceTime, map, share, startWith, distinctUntilChanged, tap, shareReplay } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, shareReplay, startWith } from 'rxjs/operators';
 import { IConfig } from './config.interface';
 import { DisplayWidth } from './display-width.type';
-import { VIEWPORT_CONFIG } from './viewport.module';
+import { VIEWPORT_CONFIG } from './viewport.token';
 
 @Injectable()
 export class ViewportService {
