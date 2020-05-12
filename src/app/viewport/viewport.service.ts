@@ -14,7 +14,7 @@ export class ViewportService {
 
   constructor(
     // @Inject(VIEWPORT_CONFIG) private config: IConfig,
-    /** some stackblizt issue o.O, it doesn't with injected token */
+    /** some stackblitz issue o.O, it doesn't work with injected token */
     private injector: Injector,
     @Inject(DOCUMENT) private document: Document,
     private ngZone: NgZone,
