@@ -1,7 +1,8 @@
 import { DOCUMENT } from '@angular/common';
-import { Inject, Injectable, Injector, NgZone } from '@angular/core';
+import { Inject, Injectable, NgZone } from '@angular/core';
 import { fromEvent, Observable, OperatorFunction } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map, shareReplay, startWith, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { SwitchService } from '../switch.service';
 import { IConfig } from './config.interface';
 import { DisplayWidth } from './display-width.type';
 import { VIEWPORT_CONFIG } from './viewport.token';
@@ -11,21 +12,31 @@ export class ViewportService {
   public viewportSize: Observable<DisplayWidth>;
 
   constructor(
-    // @Inject(VIEWPORT_CONFIG) private config: IConfig,
-    /** some stackblitz issue o.O, it doesn't work with injected token */
-    private injector: Injector,
-    @Inject(DOCUMENT) private document: Document,
+    public switchService: SwitchService,
     private ngZone: NgZone,
+    @Inject(DOCUMENT) private document: Document,
+    @Inject(VIEWPORT_CONFIG) config: IConfig,
+
+    
   ) {
-    const config = this.injector.get(VIEWPORT_CONFIG);
     const width = this.createWidth();
     this.viewportSize = this.createViewportSize(width, config)
   }
 
   private createWidth(): Observable<number> {
-    return ResizeObserver
-      ? this.createResizeObserverListener()
-      : this.createResizeEventListener(this.document.defaultView)
+    // return ResizeObserver
+    // return false
+    // ? this.createResizeObserverListener()
+    // : this.createResizeEventListener(this.document.defaultView)
+
+    return this.switchService.switch.valueChanges.pipe(
+      startWith(false),
+      switchMap(value => {
+        return value
+          ? this.createResizeObserverListener()
+          : this.createResizeEventListener(this.document.defaultView)
+      })
+    )
   }
 
   private createViewportSize(width: Observable<number>, config: IConfig): Observable<DisplayWidth> {
@@ -36,7 +47,7 @@ export class ViewportService {
     )
   }
 
-  private calcTypeSize(config: IConfig): OperatorFunction<number, DisplayWidth > {
+  private calcTypeSize(config: IConfig): OperatorFunction<number, DisplayWidth> {
     return map((width: number) => {
       if (width < config.medium) {
         return 'small';
@@ -46,10 +57,12 @@ export class ViewportService {
       }
       return 'large';
     })
-    
+
   }
 
   public createResizeObserverListener(): Observable<number> {
+    console.log('createResizeObserverListener')
+
     return new Observable(observer => {
       const ro = new ResizeObserver(entries => {
         observer.next(entries[0].contentRect.width);
@@ -62,10 +75,12 @@ export class ViewportService {
     }).pipe(
       debounceTime<number>(50),
       startWith(this.document.defaultView.innerWidth)
-    ); 
+    );
   }
 
   private createResizeEventListener(window: Window): Observable<number> {
+    console.log('createResizeEventListener')
+
     return this.ngZone.runOutsideAngular(() => {
       return fromEvent(
         window,

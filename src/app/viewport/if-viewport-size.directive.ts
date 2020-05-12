@@ -5,7 +5,7 @@ import { ViewportService } from './viewport.service';
 @Directive({
   selector: '[ifViewportSize]'
 })
-export class IfViewportSizeDirective implements OnInit, OnDestroy, AfterViewInit {
+export class IfViewportSizeDirective implements OnInit, OnDestroy {
   private sub = new Subscription();
   @Input() ifViewportSize: string
 
@@ -17,13 +17,7 @@ export class IfViewportSizeDirective implements OnInit, OnDestroy, AfterViewInit
 
 
   ngOnInit() {
-    console.log('init');
     this.sub.add(this.toggleViewReaction());
-    
-  }
-
-  ngAfterViewInit() {
-    console.log('view init');
   }
 
   ngOnDestroy() {
@@ -34,8 +28,10 @@ export class IfViewportSizeDirective implements OnInit, OnDestroy, AfterViewInit
     return this.viewportService.viewportSize
       .subscribe(viewportSize => {
         if (viewportSize === this.ifViewportSize) {
+          console.log(this.ifViewportSize, ': create')
           this.viewContainer.createEmbeddedView(this.templateRef);
         } else {
+          console.log(this.ifViewportSize, ': clear')
           this.viewContainer.clear();
         }
       });
