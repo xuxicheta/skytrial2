@@ -1,4 +1,4 @@
-import { Directive, Input, OnDestroy, OnInit, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Directive, Input, OnDestroy, OnInit, TemplateRef, ViewContainerRef, AfterViewInit, ChangeDetectorRef, ApplicationRef, NgZone } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ViewportService } from './viewport.service';
 
