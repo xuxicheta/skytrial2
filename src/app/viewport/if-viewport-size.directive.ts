@@ -1,11 +1,11 @@
-import { Directive, Input, OnDestroy, OnInit, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Directive, Input, OnDestroy, OnInit, TemplateRef, ViewContainerRef, AfterViewInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ViewportService } from './viewport.service';
 
 @Directive({
   selector: '[ifViewportSize]'
 })
-export class IfViewportSizeDirective implements OnInit, OnDestroy {
+export class IfViewportSizeDirective implements OnInit, OnDestroy, AfterViewInit {
   private sub = new Subscription();
   @Input() ifViewportSize: string
 
@@ -17,7 +17,13 @@ export class IfViewportSizeDirective implements OnInit, OnDestroy {
 
 
   ngOnInit() {
+    console.log('init');
     this.sub.add(this.toggleViewReaction());
+    
+  }
+
+  ngAfterViewInit() {
+    console.log('view init');
   }
 
   ngOnDestroy() {
