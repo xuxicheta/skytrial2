@@ -1,4 +1,4 @@
-import { Directive, Input, OnDestroy, OnInit, TemplateRef, ViewContainerRef, AfterViewInit } from '@angular/core';
+import { Directive, Input, OnDestroy, OnInit, TemplateRef, ViewContainerRef, AfterViewInit, ChangeDetectorRef, ApplicationRef, NgZone } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ViewportService } from './viewport.service';
 
@@ -28,10 +28,8 @@ export class IfViewportSizeDirective implements OnInit, OnDestroy {
     return this.viewportService.viewportSize
       .subscribe(viewportSize => {
         if (viewportSize === this.ifViewportSize) {
-          console.log(this.ifViewportSize, ': create')
           this.viewContainer.createEmbeddedView(this.templateRef);
         } else {
-          console.log(this.ifViewportSize, ': clear')
           this.viewContainer.clear();
         }
       });

@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { SwitchService } from './switch.service';
 
 @Component({
   selector: 'my-app',
@@ -10,6 +9,5 @@ export class AppComponent  {
   name = 'Angular 5';
 
   constructor(
-    public switchService: SwitchService,
   ) {}
 }

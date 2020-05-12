@@ -1,8 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable, NgZone } from '@angular/core';
 import { fromEvent, Observable, OperatorFunction } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
-import { SwitchService } from '../switch.service';
+import { debounceTime, distinctUntilChanged, map, shareReplay, startWith } from 'rxjs/operators';
 import { IConfig } from './config.interface';
 import { DisplayWidth } from './display-width.type';
 import { VIEWPORT_CONFIG } from './viewport.token';
@@ -12,31 +11,19 @@ export class ViewportService {
   public viewportSize: Observable<DisplayWidth>;
 
   constructor(
-    public switchService: SwitchService,
     private ngZone: NgZone,
     @Inject(DOCUMENT) private document: Document,
     @Inject(VIEWPORT_CONFIG) config: IConfig,
 
-    
   ) {
-    const width = this.createWidth();
-    this.viewportSize = this.createViewportSize(width, config)
+    const width = this.createWidth(this.document.defaultView, this.ngZone);
+    this.viewportSize = this.createViewportSize(width, config);
   }
 
-  private createWidth(): Observable<number> {
-    // return ResizeObserver
-    // return false
-    // ? this.createResizeObserverListener()
-    // : this.createResizeEventListener(this.document.defaultView)
-
-    return this.switchService.switch.valueChanges.pipe(
-      startWith(false),
-      switchMap(value => {
-        return value
-          ? this.createResizeObserverListener()
-          : this.createResizeEventListener(this.document.defaultView)
-      })
-    )
+  private createWidth(window: Window, ngZone: NgZone): Observable<number> {
+    return ResizeObserver
+      ? this.createResizeObserverListener(window, ngZone)
+      : this.createResizeEventListener(window, ngZone)
   }
 
   private createViewportSize(width: Observable<number>, config: IConfig): Observable<DisplayWidth> {
@@ -60,28 +47,24 @@ export class ViewportService {
 
   }
 
-  public createResizeObserverListener(): Observable<number> {
-    console.log('createResizeObserverListener')
-
+  public createResizeObserverListener(window: Window, ngZone: NgZone): Observable<number> {
     return new Observable(observer => {
       const ro = new ResizeObserver(entries => {
-        observer.next(entries[0].contentRect.width);
+        ngZone.run(() => observer.next(entries[0].contentRect.width));
       });
-      ro.observe(this.document.documentElement);
+      ro.observe(window.document.documentElement);
 
       return () => {
-        ro.unobserve(this.document.documentElement);
+        ro.unobserve(window.document.documentElement);
       }
     }).pipe(
       debounceTime<number>(50),
-      startWith(this.document.defaultView.innerWidth)
+      startWith(window.innerWidth),
     );
   }
 
-  private createResizeEventListener(window: Window): Observable<number> {
-    console.log('createResizeEventListener')
-
-    return this.ngZone.runOutsideAngular(() => {
+  private createResizeEventListener(window: Window, ngZone: NgZone): Observable<number> {
+    return ngZone.runOutsideAngular(() => {
       return fromEvent(
         window,
         'resize',

@@ -6,8 +6,4 @@ import { Component, Input } from '@angular/core';
 })
 export class TestComponent {
   @Input() value: number;
-
-  ngOnInit() {
-    console.log(this.value);
-  }
 }

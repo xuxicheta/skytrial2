@@ -1,18 +1,5 @@
-<label>Resize Observer
-<input type="checkbox" [formControl]="switchService.switch">
-</label>
+<test *ifViewportSize="'small'" [value]="1"></test>
+<test *ifViewportSize="'medium'" [value]="2"></test>
+<test *ifViewportSize="'large'" [value]="3"></test>
 
-<div>
-  <test
-    *ifViewportSize="'small'"
-    [value]="1"
-  ></test>
-  <test
-    *ifViewportSize="'medium'"
-    [value]="2"
-  ></test>
-  <test
-    *ifViewportSize="'large'"
-    [value]="3"
-  ></test>
-</div>
+
